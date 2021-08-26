@@ -33,13 +33,20 @@ export default function ToRow({ toCurrency, setToAccount, toAmount, fromAccount 
   /* @dev: save picked account */
   useEffect(() => {
     const { currency, account, parentAccount } = selectState;
+
+    if (currency === null || currency === undefined) return;
+    if (currency.id === toCurrency?.id) return;
+
     setToAccount(currency, account, parentAccount);
   }, [selectState.currency, selectState.account, selectState.parentAccount]);
 
+  /* @dev: update internal state with new currency prop received */
   useEffect(() => {
-    /* RESET internal state on account change */
-    selectState.setCurrency(null);
-  }, [fromAccount]);
+    if (toCurrency === null) return;
+    if (toCurrency.id === selectState.currency?.id) return;
+
+    selectState.setCurrency(toCurrency);
+  }, [toCurrency]);
 
   /* REFRESH picked currency information (account/parentAccount)
    when an account is added or removed by the user */

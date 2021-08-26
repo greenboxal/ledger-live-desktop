@@ -27,6 +27,7 @@ export type SwapDataType = {
   from: SwapSelectorStateType,
   to: SwapSelectorStateType,
   isMaxEnabled: boolean,
+  isSwapReversable: boolean,
 };
 
 const SelectorStateDefaultValues = {
@@ -47,7 +48,8 @@ export type SwapTransactionType = {
   ) => void,
   setFromAmount: (amount: BigNumber) => void,
   setToAmount: (amount: BigNumber) => void,
-  toggleMax: () => void,
+  toggleMax: () => Promise<void>,
+  reverseSwap: () => void,
 };
 
 const useSwapTransaction = (): SwapTransactionType => {
@@ -66,6 +68,10 @@ const useSwapTransaction = (): SwapTransactionType => {
 
     return error;
   }, [bridgeTransaction.status.errors?.gasPrice, bridgeTransaction.status.errors?.amount]);
+  const isSwapReversable = useMemo(() => !!(toState.account && fromState.currency), [
+    toState.account,
+    fromState.currency,
+  ]);
 
   /* UPDATE from account */
   const setFromAccount: $PropertyType<SwapTransactionType, "setFromAccount"> = account => {
@@ -116,7 +122,15 @@ const useSwapTransaction = (): SwapTransactionType => {
   const toggleMax: $PropertyType<SwapTransactionType, "toggleMax"> = () =>
     setMax(previous => !previous);
 
-  const swap = { to: toState, from: fromState, isMaxEnabled };
+  const reverseSwap: $PropertyType<SwapTransactionType, "reverseSwap"> = () => {
+    if (isSwapReversable === false) return;
+
+    const [newTo, newFrom] = [fromState, toState];
+    setFromAccount(newFrom.account);
+    setToAccount(newTo.currency, newTo.account, newTo.parentAccount);
+  };
+
+  const swap = { to: toState, from: fromState, isMaxEnabled, isSwapReversable };
 
   return {
     ...bridgeTransaction,
@@ -127,6 +141,7 @@ const useSwapTransaction = (): SwapTransactionType => {
     setToAccount,
     setFromAccount,
     setToAmount,
+    reverseSwap,
   };
 };
 

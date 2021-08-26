@@ -11,19 +11,6 @@ import type {
   SwapTransactionType,
 } from "~/renderer/screens/exchange/Swap2/utils/shared/useSwapTransaction";
 
-const RoundButton = styled(Button)`
-  padding: 8px;
-  border-radius: 9999px;
-  height: initial;
-`;
-function SwapButton() {
-  return (
-    <RoundButton lighterPrimary>
-      <ArrowsUpDown size={14} />
-    </RoundButton>
-  );
-}
-
 type FormInputsProps = {
   fromAccount: $PropertyType<SwapSelectorStateType, "account">,
   fromAmount: $PropertyType<SwapSelectorStateType, "amount">,
@@ -33,8 +20,27 @@ type FormInputsProps = {
   setFromAmount: $PropertyType<SwapTransactionType, "setFromAmount">,
   setToAccount: $PropertyType<SwapTransactionType, "setToAccount">,
   toggleMax: $PropertyType<SwapTransactionType, "toggleMax">,
+  reverseSwap: $PropertyType<SwapTransactionType, "reverseSwap">,
   isMaxEnabled?: boolean,
+  isSwapReversable: boolean,
 };
+
+const RoundButton = styled(Button)`
+  padding: 8px;
+  border-radius: 9999px;
+  height: initial;
+`;
+type SwapButtonProps = {
+  onClick: $PropertyType<SwapTransactionType, "reverseSwap">,
+  disabled: boolean,
+};
+function SwapButton({ onClick, disabled }: SwapButtonProps): React$Node {
+  return (
+    <RoundButton lighterPrimary disabled={disabled} onClick={onClick}>
+      <ArrowsUpDown size={14} />
+    </RoundButton>
+  );
+}
 
 export default function FormInputs({
   fromAccount = null,
@@ -46,6 +52,8 @@ export default function FormInputs({
   toAmount,
   setToAccount,
   toggleMax,
+  reverseSwap,
+  isSwapReversable,
 }: FormInputsProps) {
   return (
     <section>
@@ -59,7 +67,7 @@ export default function FormInputs({
       />
 
       <Box horizontal justifyContent="center" alignContent="center">
-        <SwapButton />
+        <SwapButton disabled={!isSwapReversable} onClick={reverseSwap} />
       </Box>
       <ToRow
         toCurrency={toCurrency}
