@@ -77,15 +77,16 @@ const useSwapTransaction = (): SwapTransactionType => {
   const setFromAccount: $PropertyType<SwapTransactionType, "setFromAccount"> = account => {
     const parentAccount =
       account?.type !== "Account" ? allAccounts.find(a => a.id === account?.parentId) : null;
-    const mainAccount = getMainAccount(account, parentAccount);
-    const currency = getAccountCurrency(mainAccount);
+    const currency = getAccountCurrency(account);
 
     bridgeTransaction.setAccount(account, parentAccount);
     setFromState({ ...SelectorStateDefaultValues, currency, account, parentAccount });
     setToState(SelectorStateDefaultValues);
 
     /* @DEV: That populates fake seed. This is required to use Transaction object */
-    const recipient = getAbandonSeedAddress(currency.id);
+    const mainAccount = getMainAccount(account, parentAccount);
+    const mainCurrency = getAccountCurrency(mainAccount);
+    const recipient = getAbandonSeedAddress(mainCurrency.id);
     bridgeTransaction.updateTransaction(transaction => ({ ...transaction, recipient }));
   };
 

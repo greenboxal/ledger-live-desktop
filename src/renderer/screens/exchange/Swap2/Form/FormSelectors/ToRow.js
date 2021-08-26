@@ -42,8 +42,7 @@ export default function ToRow({ toCurrency, setToAccount, toAmount, fromAccount 
 
   /* @dev: update internal state with new currency prop received */
   useEffect(() => {
-    if (toCurrency === null) return;
-    if (toCurrency.id === selectState.currency?.id) return;
+    if (toCurrency && toCurrency?.id === selectState.currency?.id) return;
 
     selectState.setCurrency(toCurrency);
   }, [toCurrency]);
